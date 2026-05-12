@@ -141,6 +141,51 @@ def from_papers(paper_ids: tuple[str, ...], query: str, domain: str, mode: str, 
     )
 
 
+@main.command("paper-fusion")
+@click.argument("paper_ids", nargs=-1)
+@click.option("--query", "-q", default="", help="Optional custom synthesis objective")
+@click.option("--domain", "-d", required=True, help="Research domain")
+@click.option("--mode", default="skills_only")
+@click.option("--skills", default=None, help="The skills to use for this session (default: all skills available in the skills bank)", multiple=True)
+@click.option("--gate", default="none", type=click.Choice(["human", "auto", "none"]))
+@click.option("--output", "-o", default="./results", help="Output directory for artifacts (default: ./results)")
+def paper_fusion(paper_ids: tuple[str, ...], query: str, domain: str, mode: str, skills: list[str], gate: str, output: str) -> None:
+    """Streamlined end-to-end paper generation from 2+ references.
+
+    This mode is optimized for: reference papers -> novelty synthesis ->
+    supporting theory/experiments/code plan -> final manuscript.
+
+    Example:
+      eurekaclaw paper-fusion 2301.12345 2302.67890 --domain "ML theory"
+    """
+    if len(paper_ids) < 2:
+        raise click.UsageError(
+            "paper-fusion requires at least two reference papers. "
+            "Provide 2+ arXiv/Semantic Scholar IDs."
+        )
+
+    if not query:
+        joined_ids = ", ".join(paper_ids[:4]) + ("…" if len(paper_ids) > 4 else "")
+        query = (
+            f"Synthesize and combine insights from these papers ({joined_ids}) in {domain}. "
+            "Generate a novel, testable contribution that clearly extends or bridges them. "
+            "Produce a complete paper from start to finish, including related-work grounding, "
+            "formal/theoretical support when applicable, an experiment and code implementation plan, "
+            "and actionable next-step validation details."
+        )
+
+    _run_session(
+        mode="reference",
+        query=query,
+        domain=domain,
+        paper_ids=list(paper_ids),
+        learn_mode=mode,
+        gate=gate,
+        output_dir=output,
+        skills=skills,
+    )
+
+
 @main.command()
 @click.argument("session_id")
 def pause(session_id: str) -> None:
