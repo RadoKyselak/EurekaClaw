@@ -80,6 +80,28 @@ class EurekaSession:
         )
         return await self.run(spec)
 
+    async def run_paper_fusion(
+        self,
+        paper_ids: list[str],
+        domain: str,
+        query: str = "",
+    ) -> ResearchOutput:
+        """Streamlined mode: fuse 2+ papers into one novel end-to-end paper."""
+        if len(paper_ids) < 2:
+            raise ValueError("run_paper_fusion requires at least two paper IDs")
+        objective = query or (
+            f"Fuse insights from the provided papers in {domain}. "
+            "Deliver one novel contribution with supporting theory, experiments, "
+            "implementation/code plan, and a complete manuscript."
+        )
+        spec = InputSpec(
+            mode="paper_fusion",
+            paper_ids=paper_ids,
+            domain=domain,
+            query=objective,
+        )
+        return await self.run(spec)
+
     async def run_exploration(self, domain: str, query: str = "") -> ResearchOutput:
         """Level 3 mode: open exploration of a domain."""
         spec = InputSpec(

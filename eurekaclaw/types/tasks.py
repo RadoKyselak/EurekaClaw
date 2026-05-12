@@ -91,9 +91,15 @@ class InputSpec(BaseModel):
         directions, and selects the most promising one before proceeding
         to the theory and writing stages.
         Required field: ``domain``.
+
+    ``"paper_fusion"`` — Streamlined end-to-end synthesis from 2+ papers.
+        The user supplies two or more paper identifiers in ``paper_ids``.
+        The system focuses on combining insights across papers into one
+        novel contribution, then produces supporting theory/experiments and
+        a full manuscript.
     """
 
-    mode: Literal["detailed", "reference", "exploration"]
+    mode: Literal["detailed", "reference", "exploration", "paper_fusion"]
     # Level 1: detailed conjecture
     conjecture: str | None = None
     # Level 2: reference-based (paper IDs or raw texts)
